@@ -6,10 +6,11 @@ Olivier Lefebvre
 Simon Giard-Leroux
 """
 
-import pandas as pd
-
+from src.functions import load_data, process_data, run_apriori
 
 if __name__ == '__main__':
-    data = pd.read_csv('data/bank-data.csv')
+    data = load_data('data/bank-data.csv')
 
-    print(data)
+    data = process_data(data)
+
+    run_apriori(data)
