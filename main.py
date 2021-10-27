@@ -6,7 +6,7 @@ Olivier Lefebvre
 Simon Giard-Leroux
 """
 
-from src.functions import load_data, process_data, run_apriori, find_potential_savers
+from src.functions import load_data, process_data, run_apriori, find_potential_savers, filter_rules
 
 """
 Investigations:
@@ -31,22 +31,24 @@ if __name__ == '__main__':
 
     data_non_savers = data.loc[(data['mortgage'] == 'MORTGAGE:NO') & (data['pep'] == 'PEP:NO')]
 
+    rules_savers = run_apriori(data_savers,
+                               min_support=0.005,
+                               min_confidence=0.5,
+                               min_lift=1)
     rules_dict = {}
 
-    max_rules_length = len(data_savers.columns)
-
-    for max_length in range(3, max_rules_length + 1):
+    for max_length in range(min(rules_savers['rule_length']), max(rules_savers['rule_length']) + 1):
         print('*' * 50)
         print(f'Maximum Association Rules Length = {max_length}\n')
 
-        rules_savers = run_apriori(data_savers,
-                                   n_rules=10,
-                                   min_support=0.005,
-                                   min_confidence=0.5,
-                                   min_lift=1,
-                                   max_length=max_length)
+        rules_savers_filt = filter_rules(rules_savers,
+                                         n_rules=10,
+                                         max_length=max_length)
 
-        rules_dict[f'{max_length = }'] = rules_savers
+        rules_dict[f'{max_length = }'] = rules_savers_filt
 
         find_potential_savers(data_non_savers,
-                              rules_savers=rules_savers)
+                              rules_savers=rules_savers_filt,
+                              max_length=max_length)
+
+    print("Rules & clients lists have been saved to the 'csv/' folder")

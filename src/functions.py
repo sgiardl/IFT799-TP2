@@ -9,6 +9,7 @@ Simon Giard-Leroux
 import pandas as pd
 from apyori import apriori
 from copy import deepcopy
+from csv import writer, QUOTE_NONE
 
 
 def load_data(filepath: str) -> pd.DataFrame:
@@ -61,11 +62,11 @@ def process_data(data: pd.DataFrame, *,
 
 
 def run_apriori(data: pd.DataFrame, *,
-                n_rules: int,
                 min_support: float,
                 min_confidence: float,
-                min_lift: float,
-                max_length: int) -> pd.DataFrame:
+                min_lift: float) -> pd.DataFrame:
+    print('Running apriori algorithm...')
+
     records = []
 
     for i in range(len(data)):
@@ -74,8 +75,7 @@ def run_apriori(data: pd.DataFrame, *,
     association_rules = apriori(records,
                                 min_support=min_support,
                                 min_confidence=min_confidence,
-                                min_lift=min_lift,
-                                max_length=max_length)
+                                min_lift=min_lift)
 
     columns = ['items_from', 'items_to', 'rule_length', 'support', 'confidence', 'lift']
 
@@ -124,19 +124,32 @@ def run_apriori(data: pd.DataFrame, *,
 
     results_df = results_df.sort_values(by=['score_prod', 'support'], ascending=False)
 
-    results_df = results_df.head(n_rules)
-
-    print(f'Top {n_rules} Association Rules:\n{results_df}\n')
-
-    print(f'max["score_scale"] = {max(results_df["score_scale"]):.2f}')
-    print(f'max["score_add"]   = {max(results_df["score_add"]):.2f}')
-    print(f'max["score_prod"]  = {max(results_df["score_prod"]):.2f}\n')
+    print(f'Done! Number of rules found: {len(results_df)}')
 
     return results_df
 
 
+def filter_rules(data: pd.DataFrame, *,
+                 n_rules: int,
+                 max_length: int) -> pd.DataFrame:
+    data = data.loc[(data['rule_length'] <= max_length)]
+
+    data = data.head(n_rules)
+
+    print(f'Top {n_rules} Association Rules:\n{data}\n')
+
+    print(f'max["score_scale"] = {max(data["score_scale"]):.2f}')
+    print(f'max["score_add"]   = {max(data["score_add"]):.2f}')
+    print(f'max["score_prod"]  = {max(data["score_prod"]):.2f}\n')
+
+    data.to_csv(f'csv/rules-{max_length}.csv', index=False)
+
+    return data
+
+
 def find_potential_savers(data: pd.DataFrame, *,
-                          rules_savers: pd.DataFrame) -> None:
+                          rules_savers: pd.DataFrame,
+                          max_length: int) -> None:
     potential_savers = []
 
     for i, rule_saver in rules_savers.iterrows():
@@ -156,3 +169,6 @@ def find_potential_savers(data: pd.DataFrame, *,
 
     print(f'Potential Savers Found: {len(potential_savers)}/{len(data)}\n'
           f'List: {potential_savers}\n')
+
+    df = pd.DataFrame(potential_savers, columns=['col'])
+    df.to_csv(f'csv/clients-{max_length}.csv', index=False, header=False)
