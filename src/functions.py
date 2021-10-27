@@ -86,6 +86,8 @@ def run_apriori(data: pd.DataFrame, *,
     choices_base = ['MORTGAGE:YES', 'MORTGAGE:NO', 'PEP:YES', 'PEP:NO']
 
     choices_add = [frozenset(['MORTGAGE:YES', 'PEP:YES']),
+                   frozenset(['MORTGAGE:YES', 'PEP:NO']),
+                   frozenset(['MORTGAGE:NO', 'PEP:YES']),
                    frozenset(['MORTGAGE:YES']),
                    frozenset(['PEP:YES'])]
 

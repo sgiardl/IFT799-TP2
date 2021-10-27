@@ -33,7 +33,7 @@ if __name__ == '__main__':
 
     rules_dict = {}
 
-    max_rules_length = len(data_savers.columns) - 2
+    max_rules_length = len(data_savers.columns)
 
     for max_length in range(3, max_rules_length + 1):
         print('*' * 50)
