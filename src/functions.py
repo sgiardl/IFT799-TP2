@@ -9,7 +9,6 @@ Simon Giard-Leroux
 import pandas as pd
 from apyori import apriori
 from copy import deepcopy
-from csv import writer, QUOTE_NONE
 
 
 def load_data(filepath: str) -> pd.DataFrame:
@@ -114,12 +113,6 @@ def run_apriori(data: pd.DataFrame, *,
 
                 results_df = results_df.append(results_dict, ignore_index=True)
 
-    # Combining confidence and lift into 1 score to choose the top N association rules
-    results_df['score_scale'] = results_df['confidence'] / results_df['confidence'].max() / 2 + \
-                                results_df['lift'] / results_df['lift'].max() / 2
-
-    results_df['score_add'] = results_df['confidence'] + results_df['lift']
-
     results_df['score_prod'] = results_df['confidence'] * results_df['lift']
 
     results_df = results_df.sort_values(by=['score_prod', 'support'], ascending=False)
@@ -131,18 +124,26 @@ def run_apriori(data: pd.DataFrame, *,
 
 def filter_rules(data: pd.DataFrame, *,
                  n_rules: int,
-                 max_length: int) -> pd.DataFrame:
+                 max_length: int,
+                 n_decimals: int = 4) -> pd.DataFrame:
     data = data.loc[(data['rule_length'] <= max_length)]
 
     data = data.head(n_rules)
 
+    for column in data.columns[3:]:
+        data[column] = data[column].map(f'{{:.{n_decimals}f}}'.format)
+
     print(f'Top {n_rules} Association Rules:\n{data}\n')
 
-    print(f'max["score_scale"] = {max(data["score_scale"]):.2f}')
-    print(f'max["score_add"]   = {max(data["score_add"]):.2f}')
-    print(f'max["score_prod"]  = {max(data["score_prod"]):.2f}\n')
+    print(f'max_confidence  = {max(data["confidence"])}')
+    print(f'max_lift        = {max(data["lift"])}')
+    print(f'max_score_prod  = {max(data["score_prod"])}\n')
 
     data.to_csv(f'csv/rules-{max_length}.csv', index=False)
+
+    with pd.option_context('max_colwidth', 1000):
+        with open(f'latex/rules-{max_length}.txt', 'w') as file:
+            file.write(data.to_latex(index=False))
 
     return data
 

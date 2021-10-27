@@ -51,4 +51,4 @@ if __name__ == '__main__':
                               rules_savers=rules_savers_filt,
                               max_length=max_length)
 
-    print("Rules & clients lists have been saved to the 'csv/' folder")
+    print("Rules & clients lists have been saved to the 'csv/' & 'latex/' folders!")

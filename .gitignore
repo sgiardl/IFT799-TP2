@@ -2,3 +2,4 @@
 .git
 __pycache__/
 csv/*.csv
+latex/*.txt
