@@ -12,7 +12,11 @@ from copy import deepcopy
 
 
 def load_data(filepath: str) -> pd.DataFrame:
-    return pd.read_csv(filepath)
+    try:
+        return pd.read_csv(filepath)
+
+    except FileNotFoundError:
+        raise FileNotFoundError(f"Please download the dataset and save it as '{filepath}' to use this script")
 
 
 def group_bins(data: pd.DataFrame, *,
