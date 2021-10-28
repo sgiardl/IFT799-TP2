@@ -18,9 +18,9 @@ if __name__ == '__main__':
     columns = ['n_bins_age', 'n_bins_income', 'mean_support', 'mean_confidence', 'mean_lift', 'mean_score']
     results_df = pd.DataFrame(columns=columns)
 
-    runs_tuples = get_combinations_of_two(2, 10, include_rev=True)
+    runs_tuples = get_combinations_of_two(min=2, max=10, include_rev=True)
 
-    for i, (n_bins_age, n_bins_income) in enumerate(runs_tuples):
+    for i, (n_bins_age, n_bins_income) in enumerate(runs_tuples, start=1):
         print('*' * 50)
         print(f'Run {i}/{len(runs_tuples)}')
         print(f'{n_bins_age = }, {n_bins_income = }')
