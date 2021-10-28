@@ -8,7 +8,9 @@ Simon Giard-Leroux
 
 import pandas as pd
 
-from src.functions import load_data, process_data, run_apriori, filter_rules, save_dataframe
+from src.apriori import run_apriori
+from src.dataframes import load_data, process_data, filter_rules, save_dataframe
+from src.utils import get_combinations_of_two
 
 if __name__ == '__main__':
     data = load_data('data/bank-data.csv')
@@ -16,11 +18,11 @@ if __name__ == '__main__':
     columns = ['n_bins_age', 'n_bins_income', 'mean_support', 'mean_confidence', 'mean_lift', 'mean_score']
     results_df = pd.DataFrame(columns=columns)
 
-    runs_tuples = [(2, 5), (3, 5), (4, 5), (5, 5), (6, 5), (7, 5),
-                   (5, 2), (5, 3), (5, 4), (5, 5), (5, 6), (5, 7)]
+    runs_tuples = get_combinations_of_two(2, 10, include_rev=True)
 
-    for (n_bins_age, n_bins_income) in runs_tuples:
+    for i, (n_bins_age, n_bins_income) in enumerate(runs_tuples):
         print('*' * 50)
+        print(f'Run {i}/{len(runs_tuples)}')
         print(f'{n_bins_age = }, {n_bins_income = }')
 
         data_processed = process_data(data,

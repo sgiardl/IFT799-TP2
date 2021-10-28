@@ -6,7 +6,8 @@ Olivier Lefebvre
 Simon Giard-Leroux
 """
 
-from src.functions import load_data, process_data, run_apriori, find_potential_savers, filter_rules
+from src.apriori import run_apriori
+from src.dataframes import load_data, process_data, find_potential_savers, filter_rules
 
 
 if __name__ == '__main__':
