@@ -67,8 +67,10 @@ def process_data(data: pd.DataFrame, *,
 def run_apriori(data: pd.DataFrame, *,
                 min_support: float,
                 min_confidence: float,
-                min_lift: float) -> pd.DataFrame:
-    print('Running apriori algorithm...')
+                min_lift: float,
+                verbose: bool = True) -> pd.DataFrame:
+    if verbose:
+        print('Running apriori algorithm...')
 
     records = []
 
@@ -117,11 +119,12 @@ def run_apriori(data: pd.DataFrame, *,
 
                 results_df = results_df.append(results_dict, ignore_index=True)
 
-    results_df['score_prod'] = results_df['confidence'] * results_df['lift']
+    results_df['score'] = results_df['confidence'] * results_df['lift']
 
-    results_df = results_df.sort_values(by=['score_prod', 'support'], ascending=False)
+    results_df = results_df.sort_values(by=['score', 'support'], ascending=False)
 
-    print(f'Done! Number of rules found: {len(results_df)}')
+    if verbose:
+        print(f'Done! Number of rules found: {len(results_df)}')
 
     return results_df
 
@@ -129,7 +132,9 @@ def run_apriori(data: pd.DataFrame, *,
 def filter_rules(data: pd.DataFrame, *,
                  n_rules: int,
                  max_length: int,
-                 n_decimals: int = 4) -> pd.DataFrame:
+                 n_decimals: int = 4,
+                 save: bool = True,
+                 verbose: bool = True) -> pd.DataFrame:
     data = data.loc[(data['rule_length'] <= max_length)]
 
     data = data.head(n_rules)
@@ -137,24 +142,29 @@ def filter_rules(data: pd.DataFrame, *,
     for column in data.columns[3:]:
         data[column] = data[column].map(f'{{:.{n_decimals}f}}'.format)
 
-    print(f'Top {n_rules} Association Rules:\n{data}\n')
+    if verbose:
+        print(f'Top {n_rules} Association Rules:\n{data}\n')
 
-    print(f'max_confidence  = {max(data["confidence"])}')
-    print(f'max_lift        = {max(data["lift"])}')
-    print(f'max_score_prod  = {max(data["score_prod"])}\n')
+        print(f'max_support\t\t= {max(data["support"])}')
+        print(f'max_confidence\t= {max(data["confidence"])}')
+        print(f'max_lift\t\t= {max(data["lift"])}')
+        print(f'max_score\t\t= {max(data["score"])}\n')
 
-    data.to_csv(f'csv/rules-{max_length}.csv', index=False)
+    if save:
+        data.to_csv(f'csv/rules-{max_length}.csv', index=False)
 
-    with pd.option_context('max_colwidth', 1000):
-        with open(f'latex/rules-{max_length}.txt', 'w') as file:
-            file.write(data.to_latex(index=False))
+        with pd.option_context('max_colwidth', 1000):
+            with open(f'latex/rules-{max_length}.txt', 'w') as file:
+                file.write(data.to_latex(index=False))
 
     return data
 
 
 def find_potential_savers(data: pd.DataFrame, *,
                           rules_savers: pd.DataFrame,
-                          max_length: int) -> None:
+                          max_length: int,
+                          save: bool = True,
+                          verbose: bool = True) -> None:
     potential_savers = []
 
     for i, rule_saver in rules_savers.iterrows():
@@ -172,8 +182,10 @@ def find_potential_savers(data: pd.DataFrame, *,
 
     potential_savers.sort()
 
-    print(f'Potential Savers Found: {len(potential_savers)}/{len(data)}\n'
-          f'List: {potential_savers}\n')
+    if verbose:
+        print(f'Potential Savers Found: {len(potential_savers)}/{len(data)}\n'
+              f'List: {potential_savers}\n')
 
-    df = pd.DataFrame(potential_savers, columns=['col'])
-    df.to_csv(f'csv/clients-{max_length}.csv', index=False, header=False)
+    if save:
+        df = pd.DataFrame(potential_savers, columns=['col'])
+        df.to_csv(f'csv/clients-{max_length}.csv', index=False, header=False)

@@ -8,16 +8,6 @@ Simon Giard-Leroux
 
 from src.functions import load_data, process_data, run_apriori, find_potential_savers, filter_rules
 
-"""
-Investigations:
-
-- Doing apriori on data instead of data_savers?
-- Sorting association rules first on score combining (confidence + lift) and second on support,
-  even though it states to use (confidence + lift) to choose rules?
-- Changing bins for age + income?
-- Changing children to bins instead of boolean?
-
-"""
 
 if __name__ == '__main__':
     data = load_data('data/bank-data.csv')
@@ -35,7 +25,6 @@ if __name__ == '__main__':
                                min_support=0.005,
                                min_confidence=0.5,
                                min_lift=1)
-    rules_dict = {}
 
     for max_length in range(min(rules_savers['rule_length']), max(rules_savers['rule_length']) + 1):
         print('*' * 50)
@@ -44,8 +33,6 @@ if __name__ == '__main__':
         rules_savers_filt = filter_rules(rules_savers,
                                          n_rules=10,
                                          max_length=max_length)
-
-        rules_dict[f'{max_length = }'] = rules_savers_filt
 
         find_potential_savers(data_non_savers,
                               rules_savers=rules_savers_filt,
