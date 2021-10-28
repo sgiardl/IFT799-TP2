@@ -19,6 +19,15 @@ def load_data(filepath: str) -> pd.DataFrame:
         raise FileNotFoundError(f"Please download the dataset and save it as '{filepath}' to use this script")
 
 
+def save_dataframe(data: pd.DataFrame, *,
+                   filename: str) -> None:
+    data.to_csv(f'csv/{filename}.csv', index=False)
+
+    with pd.option_context('max_colwidth', 1000):
+        with open(f'latex/{filename}.txt', 'w') as file:
+            file.write(data.to_latex(index=False))
+
+
 def group_bins(data: pd.DataFrame, *,
                col_header: str,
                n_bins: int,
@@ -134,28 +143,31 @@ def filter_rules(data: pd.DataFrame, *,
                  max_length: int,
                  n_decimals: int = 4,
                  save: bool = True,
-                 verbose: bool = True) -> pd.DataFrame:
+                 verbose: bool = True,
+                 max_or_mean: str = 'max') -> pd.DataFrame:
     data = data.loc[(data['rule_length'] <= max_length)]
 
     data = data.head(n_rules)
 
-    for column in data.columns[3:]:
-        data[column] = data[column].map(f'{{:.{n_decimals}f}}'.format)
-
     if verbose:
         print(f'Top {n_rules} Association Rules:\n{data}\n')
 
-        print(f'max_support\t\t= {max(data["support"])}')
-        print(f'max_confidence\t= {max(data["confidence"])}')
-        print(f'max_lift\t\t= {max(data["lift"])}')
-        print(f'max_score\t\t= {max(data["score"])}\n')
+        if max_or_mean == 'max':
+            print(f'max_support\t\t= {data["support"].max():.{n_decimals}f}')
+            print(f'max_confidence\t= {data["confidence"].max():.{n_decimals}f}')
+            print(f'max_lift\t\t= {data["lift"].max():.{n_decimals}f}')
+            print(f'max_score\t\t= {data["score"].max():.{n_decimals}f}\n')
+        elif max_or_mean == 'mean':
+            print(f'mean_support\t= {data["support"].astype(float).mean():.{n_decimals}f}')
+            print(f'mean_confidence\t= {data["confidence"].astype(float).mean():.{n_decimals}f}')
+            print(f'mean_lift\t\t= {data["lift"].astype(float).mean():.{n_decimals}f}')
+            print(f'mean_score\t\t= {data["score"].astype(float).mean():.{n_decimals}f}\n')
+
+    for column in data.columns[3:]:
+        data[column] = data[column].map(f'{{:.{n_decimals}f}}'.format)
 
     if save:
-        data.to_csv(f'csv/rules-{max_length}.csv', index=False)
-
-        with pd.option_context('max_colwidth', 1000):
-            with open(f'latex/rules-{max_length}.txt', 'w') as file:
-                file.write(data.to_latex(index=False))
+        save_dataframe(data, filename=f'rules-{max_length}')
 
     return data
 
