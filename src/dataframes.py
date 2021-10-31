@@ -108,8 +108,8 @@ def process_data(data: pd.DataFrame, *,
     for _, row in labels_df.iterrows():
         data_out = data_out.replace(row['long_label'], row['short_label'])
 
-    labels_df.to_csv('csv/labels.csv', index=False)
-    print("Correspondance between short & long labels has been saved to 'csv/labels.csv!'")
+    save_dataframe(labels_df, filename='labels')
+    print("Correspondance between short & long labels has been saved to 'csv/labels.csv' and 'latex/labels.txt'!")
 
     return data_out
 
