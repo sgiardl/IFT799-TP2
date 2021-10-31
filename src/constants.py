@@ -7,7 +7,6 @@ Simon Giard-Leroux
 """
 
 LABELS = {
-    #  'id'
     'age': {
         'label': 'A',
         'type': 'categorical'

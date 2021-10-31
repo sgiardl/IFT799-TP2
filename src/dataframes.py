@@ -72,7 +72,6 @@ def process_data(data: pd.DataFrame, *,
         for i, row in data_out.iterrows():
             data_out.loc[i, column] = f'{column.upper()}:{data_out.loc[i, column]}'
 
-    # labels_dict = {}
     labels_df = pd.DataFrame(columns=['long_label', 'short_label'])
 
     for column, settings in LABELS.items():
