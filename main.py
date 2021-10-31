@@ -17,10 +17,12 @@ if __name__ == '__main__':
                         n_bins_age=5,
                         n_bin_income=5)
 
-    data_savers = data.loc[(data['mortgage'] == 'MORTGAGE:YES') | (data['pep'] == 'PEP:YES')]
+    # data_savers = data.loc[(data['mortgage'] == 'MORTGAGE:YES') | (data['pep'] == 'PEP:YES')]
+    data_savers = data.loc[(data['mortgage'] == 'MG_1') | (data['pep'] == 'P_1')]
     data_savers = data_savers.drop('id', axis=1)
 
-    data_non_savers = data.loc[(data['mortgage'] == 'MORTGAGE:NO') & (data['pep'] == 'PEP:NO')]
+    # data_non_savers = data.loc[(data['mortgage'] == 'MORTGAGE:NO') & (data['pep'] == 'PEP:NO')]
+    data_non_savers = data.loc[(data['mortgage'] == 'MG_0') & (data['pep'] == 'P_0')]
 
     rules_savers = run_apriori(data_savers,
                                min_support=0.005,

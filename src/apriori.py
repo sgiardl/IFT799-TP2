@@ -34,13 +34,21 @@ def run_apriori(data: pd.DataFrame, *,
 
     association_results = list(association_rules)
 
-    choices_base = ['MORTGAGE:YES', 'MORTGAGE:NO', 'PEP:YES', 'PEP:NO']
+    # choices_base = ['MORTGAGE:YES', 'MORTGAGE:NO', 'PEP:YES', 'PEP:NO']
+    #
+    # choices_add = [frozenset(['MORTGAGE:YES', 'PEP:YES']),
+    #                frozenset(['MORTGAGE:YES', 'PEP:NO']),
+    #                frozenset(['MORTGAGE:NO', 'PEP:YES']),
+    #                frozenset(['MORTGAGE:YES']),
+    #                frozenset(['PEP:YES'])]
 
-    choices_add = [frozenset(['MORTGAGE:YES', 'PEP:YES']),
-                   frozenset(['MORTGAGE:YES', 'PEP:NO']),
-                   frozenset(['MORTGAGE:NO', 'PEP:YES']),
-                   frozenset(['MORTGAGE:YES']),
-                   frozenset(['PEP:YES'])]
+    choices_base = ['MG_1', 'MG_0', 'P_1', 'P_0']
+
+    choices_add = [frozenset(['MG_1', 'P_1']),
+                   frozenset(['MG_1', 'P_0']),
+                   frozenset(['MG_0', 'P_1']),
+                   frozenset(['MG_1']),
+                   frozenset(['P_1'])]
 
     for result in association_results:
         for order in result.ordered_statistics:

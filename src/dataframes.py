@@ -8,6 +8,9 @@ Simon Giard-Leroux
 
 import pandas as pd
 from copy import deepcopy
+from string import ascii_uppercase
+
+from src.constants import LABELS
 
 
 def load_data(filepath: str) -> pd.DataFrame:
@@ -24,7 +27,7 @@ def save_dataframe(data: pd.DataFrame, *,
 
     with pd.option_context('max_colwidth', 1000):
         with open(f'latex/{filename}.txt', 'w') as file:
-            file.write(data.to_latex(index=False))
+            file.write(data.to_latex(index=False, escape=False))
 
 
 def group_bins(data: pd.DataFrame, *,
@@ -68,6 +71,45 @@ def process_data(data: pd.DataFrame, *,
     for column in data_out.columns[1:]:
         for i, row in data_out.iterrows():
             data_out.loc[i, column] = f'{column.upper()}:{data_out.loc[i, column]}'
+
+    # labels_dict = {}
+    labels_df = pd.DataFrame(columns=['long_label', 'short_label'])
+
+    for column, settings in LABELS.items():
+        long_labels = sorted(data_out[column].unique())
+
+        if column == 'income':
+            income_dict = {}
+
+            for i, label in enumerate(long_labels):
+                income_dict[i] = int(label.split('(')[1].split('.')[0])
+
+            sorted_income = {k: v for k, v in sorted(income_dict.items(), key=lambda item: item[1])}
+
+            long_labels_sorted = [long_labels[i] for i in sorted_income.keys()]
+            long_labels = long_labels_sorted
+
+        if settings['type'] == 'nominative':
+            short_labels = [f'{settings["label"]}_{label.split(":")[1][0]}'
+                            for label in long_labels]
+
+        elif settings['type'] == 'categorical':
+            short_labels = [f'{settings["label"]}_{list(ascii_uppercase)[i]}'
+                            for i, label in enumerate(long_labels)]
+
+        elif settings['type'] == 'boolean':
+            short_labels = [f'{settings["label"]}_{1 if label.split(":")[1] == "YES" else 0}'
+                            for label in long_labels]
+
+        for i in range(len(long_labels)):
+            labels_df = labels_df.append({'long_label': long_labels[i], 'short_label': short_labels[i]},
+                                         ignore_index=True)
+
+    for _, row in labels_df.iterrows():
+        data_out = data_out.replace(row['long_label'], row['short_label'])
+
+    labels_df.to_csv('csv/labels.csv', index=False)
+    print("Correspondance between short & long labels has been saved to 'csv/labels.csv!'")
 
     return data_out
 
